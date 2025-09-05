@@ -13,7 +13,9 @@ interface Note {
 
 // API Service
 class NotesService {
-  private baseUrl = "http://localhost:4000/api/notes";
+private baseUrl = `${import.meta.env.VITE_API_URL}/api/notes`;
+
+
 
   private getHeaders() {
     const token = localStorage.getItem("token");
@@ -225,14 +227,14 @@ const NotesApp: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       {/* Header */}
-      <header className="border-b bg-white shadow-sm">
+      <header className="border-b">
         <div className="max-w-7xl mx-auto px-6 flex justify-between items-center h-16">
           <h1 className="text-xl font-bold text-gray-900">My Notes</h1>
           <button
             onClick={startCreating}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
+            className="bg-primary hover:bg-meta text-white px-4 py-2 rounded-lg flex items-center gap-2"
           >
             <Plus className="w-4 h-4" />
             New Note
@@ -374,7 +376,7 @@ const NotesApp: React.FC = () => {
               <p>No note selected. Choose one from the list or create a new one.</p>
               <button
                 onClick={startCreating}
-                className="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
+                className="mt-4 bg-primary hover:bg-meta text-white px-4 py-2 rounded-lg flex items-center gap-2"
               >
                 <Plus className="w-4 h-4" />
                 Create Note
