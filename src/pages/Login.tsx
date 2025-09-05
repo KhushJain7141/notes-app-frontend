@@ -4,7 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Spinner } from "../components/Spinner";
 
-const BASE_URL = "http://localhost:4000";
+const BASE_URL = import.meta.env.VITE_API_URL;
 
 function UserEmailLoginPage() {
   const [formData, setFormData] = useState({

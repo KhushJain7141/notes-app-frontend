@@ -5,7 +5,8 @@ import { toast } from "sonner";
 import { Spinner } from "../components/Spinner";
 import axios from "axios";
 
-const BASE_URL = "http://localhost:4000";
+const BASE_URL = import.meta.env.VITE_API_URL;
+
 
 type FormData = {
   email: string;
