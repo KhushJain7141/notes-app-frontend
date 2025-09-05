@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus, Edit2, Trash2, Save, X, Search } from "lucide-react";
+import { Plus, Edit2, Trash2, Save, X, Search, Share2 } from "lucide-react";
 
 // Types
 interface Note {
@@ -9,6 +9,7 @@ interface Note {
   content: string;
   createdAt?: string;
   updatedAt?: string;
+  shareLink?: string;
 }
 
 // API Service
@@ -58,6 +59,15 @@ class NotesService {
     });
     if (!response.ok) throw new Error("Failed to delete note");
   }
+
+  async shareNote(id: number): Promise<string> {
+    const response = await fetch(`${this.baseUrl}/${id}/share`, {
+      method: "POST",
+      headers: this.getHeaders(),
+    });
+    if (!response.ok) throw new Error("Failed to generate share link");
+    return response.text();
+  }
 }
 
 const notesService = new NotesService();
@@ -72,9 +82,8 @@ const NotesApp: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // track login state
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  // Form state
   const [formData, setFormData] = useState<Note>({
     title: "",
     content: "",
@@ -108,7 +117,7 @@ const NotesApp: React.FC = () => {
   const handleLogout = () => {
     localStorage.removeItem("token");
     setIsLoggedIn(false);
-    navigate("/"); // redirect to home
+    navigate("/");
   };
 
   const handleCreateNote = async () => {
@@ -164,13 +173,9 @@ const NotesApp: React.FC = () => {
   const handleDeleteNote = async (id: number) => {
     try {
       if (!confirm("Are you sure you want to delete this note?")) return;
-
       await notesService.deleteNote(id);
       setNotes((prev) => prev.filter((note) => note.id !== id));
-
-      if (selectedNote?.id === id) {
-        setSelectedNote(null);
-      }
+      if (selectedNote?.id === id) setSelectedNote(null);
     } catch (err) {
       setError("Failed to delete note");
       console.error("Error deleting note:", err);
@@ -214,6 +219,16 @@ const NotesApp: React.FC = () => {
     }
   };
 
+  const handleShareNote = async () => {
+    if (!selectedNote?.id) return;
+    try {
+      const link = await notesService.shareNote(selectedNote.id);
+      setSelectedNote({ ...selectedNote, shareLink: link });
+    } catch (err) {
+      alert("Failed to generate share link");
+      console.error("Error sharing note:", err);
+    }
+  };
 
   const filteredNotes = notes.filter(
     (note) =>
@@ -379,11 +394,32 @@ const NotesApp: React.FC = () => {
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
+                  <button
+                    onClick={handleShareNote}
+                    className="bg-green-600 hover:bg-green-700 text-white p-2 rounded-lg"
+                  >
+                    <Share2 className="w-4 h-4" />
+                  </button>
                 </div>
               </div>
               <p className="whitespace-pre-wrap text-gray-800">
                 {selectedNote.content}
               </p>
+              {selectedNote.shareLink && (
+                <div className="mt-4 p-3 border rounded-lg bg-gray-50 text-sm">
+                  <p className="font-medium text-gray-700 mb-1">
+                    Share this link:
+                  </p>
+                  <a
+                    href={selectedNote.shareLink}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-blue-600 hover:underline break-all"
+                  >
+                    {selectedNote.shareLink}
+                  </a>
+                </div>
+              )}
             </>
           ) : (
             <div className="text-center text-gray-500 flex flex-col items-center justify-center h-full">

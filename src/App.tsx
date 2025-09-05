@@ -4,6 +4,7 @@ import UserLoginPage from './pages/Login'
 import UserRegistrationPage from './pages/Register'
 import { BrowserRouter as Router } from 'react-router-dom'
 import NotesApp from './pages/Notes'
+import SharedNote from './pages/SharedNote'
 
 function App() {
   return (
@@ -12,6 +13,7 @@ function App() {
           <Route path="/" element={<UserLoginPage/>} />
           <Route path="/register" element={<UserRegistrationPage/>} />
           <Route path="/note" element={<NotesApp/>} />
+           <Route path="/share/:shareId" element={<SharedNote />} /> 
         </Routes>
       </Router>
   ); 
