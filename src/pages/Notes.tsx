@@ -13,9 +13,7 @@ interface Note {
 
 // API Service
 class NotesService {
-private baseUrl = `${import.meta.env.VITE_API_URL}/api/notes`;
-
-
+  private baseUrl = `${import.meta.env.VITE_API_URL}/api/notes`;
 
   private getHeaders() {
     const token = localStorage.getItem("token");
@@ -74,6 +72,7 @@ const NotesApp: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // track login state
 
   // Form state
   const [formData, setFormData] = useState<Note>({
@@ -85,8 +84,9 @@ const NotesApp: React.FC = () => {
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
-      navigate("/login");
+      navigate("/");
     } else {
+      setIsLoggedIn(true);
       loadNotes();
     }
   }, [navigate]);
@@ -103,6 +103,12 @@ const NotesApp: React.FC = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    setIsLoggedIn(false);
+    navigate("/"); // redirect to home
   };
 
   const handleCreateNote = async () => {
@@ -145,9 +151,7 @@ const NotesApp: React.FC = () => {
       });
 
       setNotes((prev) =>
-        prev.map((note) =>
-          note.id === selectedNote.id ? updatedNote : note
-        )
+        prev.map((note) => (note.id === selectedNote.id ? updatedNote : note))
       );
       setSelectedNote(updatedNote);
       setIsEditing(false);
@@ -210,7 +214,7 @@ const NotesApp: React.FC = () => {
     }
   };
 
-  // Filter notes based on search term
+
   const filteredNotes = notes.filter(
     (note) =>
       note.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -232,13 +236,23 @@ const NotesApp: React.FC = () => {
       <header className="border-b">
         <div className="max-w-7xl mx-auto px-6 flex justify-between items-center h-16">
           <h1 className="text-xl font-bold text-gray-900">My Notes</h1>
-          <button
-            onClick={startCreating}
-            className="bg-primary hover:bg-meta text-white px-4 py-2 rounded-lg flex items-center gap-2"
-          >
-            <Plus className="w-4 h-4" />
-            New Note
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={startCreating}
+              className="bg-primary hover:bg-meta text-white px-4 py-2 rounded-lg flex items-center gap-2"
+            >
+              <Plus className="w-4 h-4" />
+              New Note
+            </button>
+            {isLoggedIn && (
+              <button
+                onClick={handleLogout}
+                className="bg-primary hover:bg-meta text-white px-4 py-2 rounded-lg flex items-center gap-2"
+              >
+                Logout
+              </button>
+            )}
+          </div>
         </div>
       </header>
 
